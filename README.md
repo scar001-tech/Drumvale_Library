@@ -27,23 +27,23 @@ The system is built to be resilient. Whether you have a dedicated server with a 
 
 ## Key Features
 
-### 📚 Comprehensive Book Registry
+###  Comprehensive Book Registry
 - **Bulk Upload**: Import entire book lists from Excel or CSV files with a flexible column mapping tool.
 - **Multiple Copies**: Add multiple physical copies of the same book title in one go.
 - **Auto-Accessioning**: The system generates unique, sequential accession numbers starting from `B001`.
 - **Subject Tracking**: Organized by KCSE subjects (Mathematics, Chemistry, Literature, etc.).
 
-### 🔄 Circulation & Accountability
+###  Circulation & Accountability
 - **Issue/Return Workflow**: Quick forms to check books in and out.
 - **Overdue Monitoring**: Instant visibility into which books are past their due dates.
 - **Fine Management**: Automatic calculation of fines based on days overdue (default KSh 5/day, configurable in settings).
 
-### 👥 Member Tracking
+###  Member Tracking
 - Register both Students and Teachers.
 - Track borrow history per member to see who has which book.
 - Simple status management (Active / Left School).
 
-### 📈 Reports & Analytics
+###  Reports & Analytics
 - Inventory status reports.
 - Fine collection records.
 - Transaction logs for audit purposes.
