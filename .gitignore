@@ -1,0 +1,24 @@
+# PHP Desktop binaries
+drumvale-library-desktop/*.exe
+drumvale-library-desktop/*.dll
+drumvale-library-desktop/*.pak
+drumvale-library-desktop/*.dat
+drumvale-library-desktop/*.bin
+drumvale-library-desktop/cache/
+drumvale-library-desktop/webcache/
+drumvale-library-desktop/locales/
+drumvale-library-desktop/php/
+drumvale-library-desktop/chrome.log
+drumvale-library-desktop/debug.log
+
+# Logs and temp files
+*.log
+.DS_Store
+Thumbs.db
+
+# Database (optional - keep schema, but usually exclude data)
+# database/drumvale_library.sqlite
+
+# System files
+.vscode/
+.idea/

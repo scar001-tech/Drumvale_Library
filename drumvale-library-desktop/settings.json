@@ -1,0 +1,44 @@
+{
+    "application": {
+        "name": "Drumvale Library System",
+        "version": "1.0",
+        "single_instance": true
+    },
+    "debugging": {
+        "log_level": "INFO",
+        "log_file": "debug.log"
+    },
+    "main_window": {
+        "title": "Drumvale Library Management System",
+        "icon": "assets/icon.ico",
+        "default_size": [1200, 800],
+        "minimum_size": [800, 600],
+        "maximum_size": [0, 0],
+        "disable_maximize_button": false,
+        "center_on_screen": true,
+        "start_maximized": false,
+        "start_minimized": false
+    },
+    "web_server": {
+        "listen_on": ["127.0.0.1", 8080],
+        "www_directory": "./www",
+        "index_files": ["index.php", "index.html"],
+        "cgi_interpreter": "php/php-cgi.exe",
+        "cgi_extensions": ["php"],
+        "cgi_temp_dir": ""
+    },
+    "chrome": {
+        "log_file": "chrome.log",
+        "log_severity": "info",
+        "cache_path": "cache/",
+        "external_links_in_os_browser": true,
+        "context_menu": {
+            "enable_menu": true,
+            "navigation": true,
+            "print": true,
+            "view_source": true,
+            "external_browser": true,
+            "devtools": true
+        }
+    }
+}

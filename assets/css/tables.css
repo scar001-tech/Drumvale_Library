@@ -1,0 +1,304 @@
+/* Tables CSS - Additional table styling for Drumvale Library */
+
+/* Filters Form */
+.filters-form {
+    display: grid;
+    grid-template-columns: 2fr 1fr 1fr auto auto;
+    gap: var(--spacing-4);
+    align-items: end;
+}
+
+.filter-group {
+    display: flex;
+    flex-direction: column;
+}
+
+.filter-group label {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--gray-700);
+    margin-bottom: var(--spacing-1);
+}
+
+/* Actions Column */
+.actions {
+    white-space: nowrap;
+}
+
+.actions .btn {
+    margin-right: var(--spacing-1);
+}
+
+.actions .btn:last-child {
+    margin-right: 0;
+}
+
+/* Text Utilities */
+.text-center {
+    text-align: center;
+}
+
+.text-left {
+    text-align: left;
+}
+
+.text-right {
+    text-align: right;
+}
+
+/* Info Button Style */
+.btn-info {
+    background: linear-gradient(135deg, var(--info-color), #0891b2);
+    color: var(--white);
+}
+
+.btn-info:hover {
+    transform: translateY(-1px);
+    box-shadow: var(--shadow-lg);
+}
+
+/* Pagination Styles */
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: var(--spacing-6);
+    padding: var(--spacing-4);
+    background: var(--white);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
+    border: 1px solid var(--gray-200);
+}
+
+.pagination-info {
+    font-size: var(--font-size-sm);
+    color: var(--gray-600);
+    font-weight: 500;
+}
+
+/* Status Indicators */
+.status-active {
+    color: var(--success-color);
+}
+
+.status-inactive {
+    color: var(--gray-500);
+}
+
+.status-overdue {
+    color: var(--error-color);
+}
+
+/* Table Row Hover Effects */
+.data-table tbody tr {
+    transition: all var(--transition-fast);
+}
+
+.data-table tbody tr:hover {
+    background: var(--gray-50);
+    transform: translateY(-1px);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+}
+
+/* Responsive Table */
+@media (max-width: 1024px) {
+    .filters-form {
+        grid-template-columns: 1fr;
+        gap: var(--spacing-3);
+    }
+    
+    .filter-group {
+        margin-bottom: var(--spacing-2);
+    }
+    
+    .table-container {
+        overflow-x: auto;
+    }
+    
+    .data-table {
+        min-width: 800px;
+    }
+}
+
+@media (max-width: 768px) {
+    .pagination {
+        flex-direction: column;
+        gap: var(--spacing-3);
+    }
+    
+    .actions .btn {
+        padding: var(--spacing-1) var(--spacing-2);
+        font-size: var(--font-size-xs);
+    }
+    
+    .data-table th,
+    .data-table td {
+        padding: var(--spacing-2) var(--spacing-3);
+        font-size: var(--font-size-xs);
+    }
+}
+
+/* Loading State for Tables */
+.table-loading {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: var(--spacing-16);
+    color: var(--gray-500);
+}
+
+.table-loading i {
+    animation: spin 1s linear infinite;
+    margin-right: var(--spacing-2);
+    font-size: var(--font-size-lg);
+}
+
+/* Empty Table State */
+.table-empty {
+    text-align: center;
+    padding: var(--spacing-16);
+    color: var(--gray-500);
+}
+
+.table-empty i {
+    font-size: var(--font-size-4xl);
+    margin-bottom: var(--spacing-4);
+    opacity: 0.5;
+}
+
+.table-empty h3 {
+    font-size: var(--font-size-xl);
+    margin-bottom: var(--spacing-2);
+    color: var(--gray-700);
+}
+
+.table-empty p {
+    font-size: var(--font-size-base);
+    margin-bottom: var(--spacing-6);
+}
+
+/* Table Actions Dropdown */
+.table-actions {
+    position: relative;
+    display: inline-block;
+}
+
+.table-actions-toggle {
+    background: none;
+    border: none;
+    padding: var(--spacing-2);
+    color: var(--gray-600);
+    cursor: pointer;
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+}
+
+.table-actions-toggle:hover {
+    background: var(--gray-100);
+    color: var(--gray-800);
+}
+
+.table-actions-menu {
+    position: absolute;
+    top: 100%;
+    right: 0;
+    background: var(--white);
+    border: 1px solid var(--gray-200);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-lg);
+    min-width: 150px;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(-10px);
+    transition: all var(--transition-fast);
+    z-index: 1001;
+    padding: var(--spacing-2);
+}
+
+.table-actions:hover .table-actions-menu {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0);
+}
+
+.table-actions-menu a {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    padding: var(--spacing-2) var(--spacing-3);
+    color: var(--gray-600);
+    text-decoration: none;
+    border-radius: var(--radius-md);
+    transition: all var(--transition-fast);
+    font-size: var(--font-size-sm);
+}
+
+.table-actions-menu a:hover {
+    background: var(--gray-100);
+    color: var(--gray-800);
+}
+
+.table-actions-menu .danger:hover {
+    background: var(--error-color);
+    color: var(--white);
+}
+
+/* Bulk Actions */
+.bulk-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-4);
+    margin-bottom: var(--spacing-4);
+    padding: var(--spacing-4);
+    background: var(--gray-50);
+    border-radius: var(--radius-lg);
+    border: 1px solid var(--gray-200);
+}
+
+.bulk-actions-label {
+    font-size: var(--font-size-sm);
+    font-weight: 600;
+    color: var(--gray-700);
+}
+
+.bulk-actions select {
+    min-width: 150px;
+}
+
+/* Table Checkbox */
+.table-checkbox {
+    width: 18px;
+    height: 18px;
+    accent-color: var(--primary-color);
+}
+
+/* Sort Headers */
+.sortable {
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+}
+
+.sortable:hover {
+    background: var(--gray-100);
+}
+
+.sortable::after {
+    content: '\f0dc';
+    font-family: 'Font Awesome 6 Free';
+    font-weight: 900;
+    position: absolute;
+    right: var(--spacing-2);
+    opacity: 0.3;
+    font-size: var(--font-size-xs);
+}
+
+.sortable.asc::after {
+    content: '\f0de';
+    opacity: 1;
+}
+
+.sortable.desc::after {
+    content: '\f0dd';
+    opacity: 1;
+}
