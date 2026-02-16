@@ -71,7 +71,7 @@ if (!empty($category)) {
 
 // Special filter for missing details
 if ($missing_info === 'yes') {
-    $where_conditions[] = "(isbn IS NULL OR isbn = '' OR publisher IS NULL OR publisher = '' OR publication_year IS NULL OR pages IS NULL OR pages = 0)";
+    $where_conditions[] = "(publisher IS NULL OR publisher = '' OR publication_year IS NULL OR pages IS NULL OR pages = 0)";
 }
 
 $where_clause = implode(' AND ', $where_conditions);
@@ -202,7 +202,6 @@ include '../includes/header.php';
                     <?php else: ?>
                         <?php foreach ($books as $book): 
                             $missing = [];
-                            if (empty($book['isbn'])) $missing[] = 'ISBN';
                             if (empty($book['publisher'])) $missing[] = 'Publisher';
                             if (empty($book['publication_year'])) $missing[] = 'Year';
                             if (empty($book['pages'])) $missing[] = 'Pages';

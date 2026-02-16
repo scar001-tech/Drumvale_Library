@@ -11,6 +11,15 @@ include '../includes/header.php';
 include '../includes/db_connect.php';
 
 try {
+    // Overall counts
+    $book_stats = $pdo->query("
+        SELECT 
+            COUNT(*) as total_titles,
+            SUM(total_copies) as total_copies,
+            SUM(available_copies) as available_copies
+        FROM books WHERE status = 'Active'
+    ")->fetch();
+
     // Books by subject
     $by_subject = $pdo->query("
         SELECT subject, COUNT(*) as count, SUM(total_copies) as copies, SUM(available_copies) as available
@@ -59,6 +68,25 @@ try {
     <?php if (isset($error)): ?>
         <div class="alert alert-error"><?php echo $error; ?></div>
     <?php endif; ?>
+
+    <div class="stats-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 1.5rem; margin-bottom: 2rem;">
+        <div class="stat-card" style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center;">
+            <h3 style="font-size: 2rem; margin: 0; color: #1e293b;"><?php echo $book_stats['total_titles']; ?></h3>
+            <p style="color: #64748b; margin: 0.5rem 0 0 0; font-weight: 500;">Total Titles</p>
+        </div>
+        <div class="stat-card" style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center; border-left: 4px solid #3b82f6;">
+            <h3 style="font-size: 2rem; margin: 0; color: #1e293b;"><?php echo $book_stats['total_copies']; ?></h3>
+            <p style="color: #64748b; margin: 0.5rem 0 0 0; font-weight: 500;">Total Copies</p>
+        </div>
+        <div class="stat-card" style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center; border-left: 4px solid #10b981;">
+            <h3 style="font-size: 2rem; margin: 0; color: #1e293b;"><?php echo $book_stats['available_copies']; ?></h3>
+            <p style="color: #64748b; margin: 0.5rem 0 0 0; font-weight: 500;">Available Now</p>
+        </div>
+        <div class="stat-card" style="background: white; padding: 1.5rem; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); text-align: center; border-left: 4px solid #f59e0b;">
+            <h3 style="font-size: 2rem; margin: 0; color: #1e293b;"><?php echo $book_stats['total_copies'] - $book_stats['available_copies']; ?></h3>
+            <p style="color: #64748b; margin: 0.5rem 0 0 0; font-weight: 500;">Currently Issued</p>
+        </div>
+    </div>
 
     <div class="report-section">
         <h3><i class="fas fa-chart-pie"></i> Books by Subject</h3>

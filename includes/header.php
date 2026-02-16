@@ -59,6 +59,8 @@ $basePath = getBasePath();
                     <div class="dropdown-menu">
                         <a href="<?php echo $basePath; ?>books/index.php">View All Books</a>
                         <a href="<?php echo $basePath; ?>books/add.php">Add New Book</a>
+                        <a href="<?php echo $basePath; ?>books/bulk_issue.php">Bulk Issue</a>
+                        <a href="<?php echo $basePath; ?>books/bulk_return.php">Bulk Return</a>
                         <a href="<?php echo $basePath; ?>books/bulk_upload.php">Bulk Upload</a>
                         <a href="<?php echo $basePath; ?>books/bulk_manage.php">Bulk Manage</a>
                     </div>

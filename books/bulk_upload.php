@@ -100,7 +100,7 @@ include '../includes/header.php';
                 </div>
                 <div class="info-card-content">
                     <h4>Smart Detection</h4>
-                    <p>We automatically detect common column names like "Title", "Author", "ISBN", etc.</p>
+                    <p>We automatically detect common column names like "Title", "Author", "Subject", etc.</p>
                 </div>
             </div>
             

@@ -39,6 +39,13 @@ try {
 }
 ?>
 
+<div class="page-hero hero-settings">
+    <div class="hero-content">
+        <h2>System Settings</h2>
+        <p>Configure & Optimize Your Workspace</p>
+    </div>
+</div>
+
 <div class="page-container">
     <div class="page-header">
         <h1><i class="fas fa-cog"></i> System Settings</h1>

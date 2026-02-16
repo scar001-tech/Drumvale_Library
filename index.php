@@ -53,10 +53,17 @@ try {
 }
 ?>
 
+<div class="dashboard-hero">
+    <div class="hero-content">
+        <h1><i class="fas fa-university"></i> Drumvale Library</h1>
+        <p>Managed Excellence in Learning & Research</p>
+    </div>
+</div>
+
 <div class="dashboard-container">
     <div class="dashboard-header">
         <h1><i class="fas fa-tachometer-alt"></i> Library Dashboard</h1>
-        <p class="dashboard-subtitle">Drumvale Secondary School Library Management System</p>
+        <p class="dashboard-subtitle">Operational Overview & Management Tools</p>
     </div>
 
     <!-- Statistics Cards -->
@@ -160,7 +167,76 @@ try {
     </div>
 
     <!-- Recent Activity -->
-    <div class="recent-activity">
+    <style>
+    /* Hero Section Styles */
+    .dashboard-hero {
+        background: linear-gradient(rgba(15, 23, 42, 0.7), rgba(15, 23, 42, 0.7)), 
+                    url('https://images.unsplash.com/photo-1507842217343-583bb7270b66?ixlib=rb-4.0.3&auto=format&fit=crop&w=1600&q=80');
+        background-size: cover;
+        background-position: center;
+        background-attachment: fixed;
+        height: 300px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+        color: white;
+        margin-top: -32px; /* Pull into existing padding */
+        margin-left: -24px;
+        margin-right: -24px;
+        margin-bottom: 40px;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    }
+
+    .hero-content h1 {
+        font-size: 3.5rem;
+        font-weight: 800;
+        margin-bottom: 0.5rem;
+        letter-spacing: -1px;
+        text-shadow: 2px 2px 4px rgba(0,0,0,0.3);
+    }
+
+    .hero-content p {
+        font-size: 1.25rem;
+        opacity: 0.9;
+        margin-bottom: 1.5rem;
+        font-weight: 300;
+        letter-spacing: 2px;
+        text-transform: uppercase;
+    }
+
+    .hero-stats {
+        background: rgba(255, 255, 255, 0.1);
+        backdrop-filter: blur(10px);
+        padding: 0.75rem 2rem;
+        border-radius: 50px;
+        display: inline-flex;
+        gap: 1.5rem;
+        border: 1px solid rgba(255, 255, 255, 0.2);
+    }
+
+    .hero-stats span {
+        font-size: 0.9rem;
+    }
+
+    .hero-stats strong {
+        font-size: 1.1rem;
+        color: #60a5fa;
+    }
+
+    /* Adjust Dashboard Container */
+    .dashboard-container {
+        padding-top: 0;
+    }
+
+    .dashboard-header {
+        border-bottom: 2px solid #e2e8f0;
+        padding-bottom: 1.5rem;
+        margin-bottom: 2.5rem;
+    }
+</style>
+
+<div class="recent-activity">
         <h2><i class="fas fa-history"></i> Recent Activity</h2>
         <div class="activity-container">
             <?php

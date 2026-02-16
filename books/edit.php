@@ -38,16 +38,13 @@ $error_message = '';
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $title = trim($_POST['title'] ?? '');
     $author = trim($_POST['author'] ?? '');
-    $isbn = trim($_POST['isbn'] ?? '');
     $subject = trim($_POST['subject'] ?? '');
     $publisher = trim($_POST['publisher'] ?? '');
     $publication_year = intval($_POST['publication_year'] ?? 0);
     $edition = trim($_POST['edition'] ?? '');
     $pages = intval($_POST['pages'] ?? 0);
-    $shelf_location = trim($_POST['shelf_location'] ?? '');
     $total_copies = intval($_POST['total_copies'] ?? 1);
     $price = floatval($_POST['price'] ?? 0);
-    $description = trim($_POST['description'] ?? '');
     $status = $_POST['status'] ?? 'Active';
     
     // Validation
@@ -70,18 +67,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Update book
             $stmt = $pdo->prepare("
                 UPDATE books SET 
-                    title = ?, author = ?, isbn = ?, subject = ?, publisher = ?, 
+                    title = ?, author = ?, subject = ?, publisher = ?, 
                     publication_year = ?, edition = ?, pages = ?, 
-                    shelf_location = ?, total_copies = ?, available_copies = ?, 
-                    price = ?, description = ?, status = ?, updated_at = ?
+                    total_copies = ?, available_copies = ?, 
+                    price = ?, status = ?, updated_at = ?
                 WHERE book_id = ?
             ");
             
             $stmt->execute([
-                $title, $author, $isbn, $subject, $publisher,
+                $title, $author, $subject, $publisher,
                 $publication_year ?: null, $edition ?: null, $pages ?: null, 
-                $shelf_location, $total_copies, $new_available_copies, 
-                $price ?: null, $description ?: null, $status, date('Y-m-d H:i:s'), $book_id
+                $total_copies, $new_available_copies, 
+                $price ?: null, $status, date('Y-m-d H:i:s'), $book_id
             ]);
             
             // Log activity
@@ -180,12 +177,6 @@ sort($all_subjects);
                     
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="isbn" class="form-label">ISBN</label>
-                            <input type="text" id="isbn" name="isbn" class="form-input" 
-                                   value="<?php echo htmlspecialchars($book['isbn']); ?>">
-                        </div>
-                        
-                        <div class="form-group">
                             <label for="subject" class="form-label required">Subject</label>
                             <select id="subject" name="subject" class="form-select" required>
                                 <option value="">Select Subject</option>
@@ -240,13 +231,6 @@ sort($all_subjects);
                     
                     <div class="form-row">
                         <div class="form-group">
-                            <label for="shelf_location" class="form-label">Shelf Location</label>
-                            <input type="text" id="shelf_location" name="shelf_location" class="form-input" 
-                                   placeholder="e.g., A1-B2" 
-                                   value="<?php echo htmlspecialchars($book['shelf_location']); ?>">
-                        </div>
-                        
-                        <div class="form-group">
                             <label for="total_copies" class="form-label required">Total Copies</label>
                             <input type="number" id="total_copies" name="total_copies" class="form-input" 
                                    min="<?php echo $book['total_copies'] - $book['available_copies']; ?>" 
@@ -272,12 +256,6 @@ sort($all_subjects);
                                 <option value="Inactive" <?php echo $book['status'] === 'Inactive' ? 'selected' : ''; ?>>Inactive</option>
                             </select>
                         </div>
-                    </div>
-                    
-                    <div class="form-group">
-                        <label for="description" class="form-label">Description</label>
-                        <textarea id="description" name="description" class="form-textarea" rows="3" 
-                                  placeholder="Brief description of the book..."><?php echo htmlspecialchars($book['description']); ?></textarea>
                     </div>
                 </div>
             </div>

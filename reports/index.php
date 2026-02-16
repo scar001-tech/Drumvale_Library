@@ -35,6 +35,13 @@ try {
 }
 ?>
 
+<div class="page-hero hero-reports">
+    <div class="hero-content">
+        <h2>Reports Dashboard</h2>
+        <p>Analyze & Grow Your Library</p>
+    </div>
+</div>
+
 <div class="page-container">
     <div class="page-header">
         <h1><i class="fas fa-chart-bar"></i> Reports Dashboard</h1>

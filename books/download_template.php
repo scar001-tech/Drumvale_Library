@@ -22,7 +22,6 @@ fputcsv($output, [
     'category',
     'total_copies',
     'shelf_location',
-    'isbn',
     'publisher',
     'publication_year',
     'price'
@@ -37,7 +36,6 @@ fputcsv($output, [
     'Textbook',
     '50',
     'A1-Math',
-    '978-9966-00-123-4',
     'Kenya Literature Bureau',
     '2023',
     '450.00'
@@ -51,7 +49,6 @@ fputcsv($output, [
     'Novel',
     '25',
     'C3-Lit',
-    '978-0-385-47454-2',
     'Penguin Books',
     '1994',
     '350.00'
@@ -65,7 +62,6 @@ fputcsv($output, [
     'Textbook',
     '40',
     'D1-Sci',
-    '',
     'Longhorn Publishers',
     '2022',
     '520.00'

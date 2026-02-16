@@ -73,6 +73,13 @@ try {
 }
 ?>
 
+<div class="page-hero hero-fines">
+    <div class="hero-content">
+        <h2>Fines Management</h2>
+        <p>Maintain Accountability & Care</p>
+    </div>
+</div>
+
 <div class="page-container">
     <div class="page-header">
         <h1><i class="fas fa-money-bill-wave"></i> Fines Management</h1>

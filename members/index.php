@@ -79,6 +79,13 @@ try {
 }
 ?>
 
+<div class="page-hero hero-members">
+    <div class="hero-content">
+        <h2>Members Management</h2>
+        <p>Connecting Readers with Knowledge</p>
+    </div>
+</div>
+
 <div class="page-container">
     <div class="page-header">
         <h1><i class="fas fa-users"></i> Members Management</h1>

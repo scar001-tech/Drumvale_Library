@@ -174,14 +174,48 @@ function parseXLS($filepath) {
 }
 
 /**
- * Generate next accession number
+ * Generate next accession number intelligently
  */
 function generateAccessionNumber($pdo) {
     try {
-        $stmt = $pdo->query("SELECT MAX(CAST(SUBSTR(accession_number, 2) AS INTEGER)) as max_num FROM books WHERE accession_number LIKE 'B%'");
-        $result = $stmt->fetch();
-        $next_num = ($result['max_num'] ?? 0) + 1;
-        return 'B' . str_pad($next_num, 3, '0', STR_PAD_LEFT);
+        // Get the latest accession number by finding the highest numeric value
+        // Note: This is a bit complex for SQLite/MySQL compatibility, so we 
+        // fallback to the most recent entry if logic fails.
+        $stmt = $pdo->query("SELECT accession_number FROM books ORDER BY book_id DESC LIMIT 1");
+        $last = $stmt->fetch();
+        
+        if (!$last) return '001';
+        
+        $last_acc = $last['accession_number'];
+        $base_prefix = '';
+        $base_num = 0;
+        $padding = 3;
+
+        if (preg_match('/^(.*?)(\d+)$/', $last_acc, $matches)) {
+            $base_prefix = $matches[1];
+            $base_num = intval($matches[2]);
+            $padding = strlen($matches[2]);
+        } else {
+            $base_prefix = $last_acc . '-';
+            $base_num = 0;
+        }
+
+        // Loop to find a truly available number (in case of gaps or manual entries)
+        $attempts = 0;
+        while ($attempts < 100) {
+            $base_num++;
+            $candidate = $base_prefix . str_pad($base_num, $padding, '0', STR_PAD_LEFT);
+            
+            $check = $pdo->prepare("SELECT COUNT(*) FROM books WHERE accession_number = ?");
+            $check->execute([$candidate]);
+            if ($check->fetchColumn() == 0) {
+                return $candidate;
+            }
+            $attempts++;
+        }
+        
+        // Final fallback if loop fails
+        return 'B' . time() . rand(10, 99);
     } catch (Exception $e) {
         return 'B' . str_pad(rand(100, 999), 3, '0', STR_PAD_LEFT);
     }
@@ -344,7 +378,6 @@ function autoMapColumns($headers, $expected_fields) {
         'title' => ['name', 'book', 'heading', 'title', 'descriptor', 'label', 'text', 'subject title', 'book name'],
         'accession_number' => ['acc', 'id', 'no', 'number', 'accession', 'serial', 'barcode', 'code', 'ref', 'identifier', 'identity'],
         'author' => ['author', 'writer', 'creator', 'by', 'composer', 'person', 'authors', 'written by'],
-        'isbn' => ['isbn', 'isbn10', 'isbn13', 'standard', 'international', 'book code'],
         'subject' => ['subject', 'course', 'topic', 'area', 'field', 'dept', 'department', 'discipline'],
         'category' => ['type', 'category', 'genre', 'class', 'group', 'book type', 'nature'],
         'pages' => ['page', 'pages', 'pagination', 'pagation', 'pg', 'size', 'length'],
@@ -534,8 +567,8 @@ if ($step === 2 && isset($_POST['column_mapping'])) {
                 registration_date, accession_number, copy_number, classification_number, 
                 author, title, publisher, publication_year, pages, 
                 last_borrowed_date, last_returned_date, borrower_class, borrower_name,
-                subject, category, shelf_location, total_copies, available_copies, status
-            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 1, 'Active')
+                subject, category, shelf_location, total_copies, available_copies, status, price
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 1, 'Active', ?)
         ");
 
         for ($i = $start_row; $i < count($parsed_data); $i++) {
@@ -590,7 +623,8 @@ if ($step === 2 && isset($_POST['column_mapping'])) {
                     $book['borrower_name'],
                     matchSubject($book['subject'] ?? 'English', $valid_subjects),
                     matchCategory($book['category'] ?? 'Textbook', $valid_categories),
-                    $book['shelf_location']
+                    $book['shelf_location'],
+                    !empty($book['price']) ? floatval(preg_replace('/[^0-9.]/', '', $book['price'])) : null
                 ]);
                 $success_count++;
                 $imported_books[] = ['accession_number' => $book['accession_number'], 'title' => $title, 'author' => $book['author'] ?: 'Unknown'];

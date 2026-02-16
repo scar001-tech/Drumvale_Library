@@ -28,7 +28,6 @@ try {
         available_copies INT NOT NULL DEFAULT 1,
         shelf_location VARCHAR(50) NOT NULL,
         barcode VARCHAR(50) NULL,
-        isbn VARCHAR(20) NULL,
         publisher VARCHAR(100) NULL,
         publication_year YEAR NULL,
         edition VARCHAR(50) NULL,

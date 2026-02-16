@@ -76,6 +76,25 @@ include '../includes/header.php';
         </div>
     </div>
 
+    <!-- Price Summary Box -->
+    <?php if ($book['price']): ?>
+    <div class="price-summary-card">
+        <div class="price-icon-wrapper">
+            <i class="fas fa-money-bill-wave"></i>
+        </div>
+        <div class="price-info-group">
+            <div class="price-info-item">
+                <span class="price-label">Unit Price</span>
+                <span class="price-value">KSh <?php echo number_format($book['price'], 2); ?></span>
+            </div>
+            <div class="price-info-item">
+                <span class="price-label">Total Value (<?php echo $book['total_copies']; ?> Copies)</span>
+                <span class="price-value">KSh <?php echo number_format($book['price'] * $book['total_copies'], 2); ?></span>
+            </div>
+        </div>
+    </div>
+    <?php endif; ?>
+
     <div class="details-grid">
         <!-- Basic Information -->
         <div class="details-card">
@@ -103,12 +122,6 @@ include '../includes/header.php';
                     <span class="detail-label">Category:</span>
                     <span class="detail-value"><?php echo htmlspecialchars($book['category']); ?></span>
                 </div>
-                <?php if ($book['isbn']): ?>
-                <div class="detail-row">
-                    <span class="detail-label">ISBN:</span>
-                    <span class="detail-value"><?php echo htmlspecialchars($book['isbn']); ?></span>
-                </div>
-                <?php endif; ?>
             </div>
         </div>
 
@@ -300,6 +313,75 @@ include '../includes/header.php';
 </div>
 
 <style>
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    flex-wrap: wrap;
+    gap: 1rem;
+}
+
+.price-summary-card {
+    background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+    color: white;
+    border-radius: 12px;
+    padding: 1.5rem 2rem;
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+    margin-bottom: 2rem;
+    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+}
+
+.price-icon-wrapper {
+    background: rgba(255, 255, 255, 0.2);
+    width: 60px;
+    height: 60px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    flex-shrink: 0;
+}
+
+.price-info-group {
+    display: flex;
+    gap: 3rem;
+    flex-wrap: wrap;
+}
+
+.price-info-item {
+    display: flex;
+    flex-direction: column;
+}
+
+.price-label {
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    opacity: 0.9;
+    margin-bottom: 0.25rem;
+    font-weight: 600;
+}
+
+.price-value {
+    font-size: 1.5rem;
+    font-weight: 700;
+}
+
+@media (max-width: 600px) {
+    .price-summary-card {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+    .price-info-group {
+        gap: 1.5rem;
+    }
+}
+
 .details-grid {
     display: grid;
     grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));

@@ -61,10 +61,23 @@ try {
 }
 ?>
 
+<div class="page-hero hero-transactions">
+    <div class="hero-content">
+        <h2>Transaction History</h2>
+        <p>Monitor the Flow of Knowledge</p>
+    </div>
+</div>
+
 <div class="page-container">
     <div class="page-header">
         <h1><i class="fas fa-exchange-alt"></i> Transaction History</h1>
         <div class="page-actions">
+            <a href="../books/bulk_issue.php" class="btn btn-info">
+                <i class="fas fa-layer-group"></i> Bulk Issue
+            </a>
+            <a href="../books/bulk_return.php" class="btn btn-success">
+                <i class="fas fa-clipboard-check"></i> Bulk Return
+            </a>
             <a href="issue.php" class="btn btn-primary">
                 <i class="fas fa-book-reader"></i> Issue Book
             </a>

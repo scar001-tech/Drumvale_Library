@@ -25,9 +25,9 @@ $where_conditions = ["b.status != 'Deleted'"];
 $params = [];
 
 if (!empty($search)) {
-    $where_conditions[] = "(b.title LIKE ? OR b.author LIKE ? OR b.isbn LIKE ? OR b.accession_number LIKE ?)";
+    $where_conditions[] = "(b.title LIKE ? OR b.author LIKE ? OR b.accession_number LIKE ?)";
     $search_param = "%$search%";
-    $params = array_merge($params, [$search_param, $search_param, $search_param, $search_param]);
+    $params = array_merge($params, [$search_param, $search_param, $search_param]);
 }
 
 if (!empty($subject)) {
@@ -70,6 +70,13 @@ try {
     $error = "Database error: " . $e->getMessage();
 }
 ?>
+
+<div class="page-hero hero-books">
+    <div class="hero-content">
+        <h2>Books Management</h2>
+        <p>Curate & Organize Your Collection</p>
+    </div>
+</div>
 
 <div class="page-container">
     <div class="page-header">
@@ -135,7 +142,6 @@ try {
                     <th>Title</th>
                     <th>Author</th>
                     <th>Subject</th>
-                    <th>ISBN</th>
                     <th>Copies</th>
                     <th>Available</th>
                     <th>Status</th>
@@ -159,7 +165,6 @@ try {
                             </td>
                             <td><?php echo htmlspecialchars($book['author']); ?></td>
                             <td><?php echo htmlspecialchars($book['subject']); ?></td>
-                            <td><?php echo htmlspecialchars($book['isbn']); ?></td>
                             <td><?php echo $book['total_copies']; ?></td>
                             <td>
                                 <span class="badge <?php echo $book['available_copies'] > 0 ? 'badge-success' : 'badge-warning'; ?>">

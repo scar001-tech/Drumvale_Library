@@ -52,7 +52,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $borrower_name = trim($_POST['borrower_name'] ?? '');
 
     // Other existing fields
-    $isbn = trim($_POST['isbn'] ?? '');
     $subject = trim($_POST['subject'] ?? 'English');
     $category = trim($_POST['category'] ?? 'Textbook');
     $shelf_location = trim($_POST['shelf_location'] ?? '');
@@ -66,28 +65,60 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         try {
             $inserted_count = 0;
             
-            // Get base accession number if auto-generating
-            $next_base_num = 0;
-            if (empty($accession_number)) {
-                $stmt = $pdo->query("SELECT MAX(CAST(SUBSTR(accession_number, 2) AS INTEGER)) as max_num FROM books WHERE accession_number LIKE 'B%'");
-                $result = $stmt->fetch();
-                $next_base_num = ($result['max_num'] ?? 0) + 1;
+            // Increment logic
+            function incrementString($str, $offset) {
+                if (preg_match('/^(.*?)(\d+)$/', $str, $matches)) {
+                    $prefix = $matches[1];
+                    $number_str = $matches[2];
+                    $padding = strlen($number_str);
+                    $new_number = intval($number_str) + $offset;
+                    return $prefix . str_pad($new_number, $padding, '0', STR_PAD_LEFT);
+                }
+                return $str . ($offset > 0 ? '-' . ($offset + 1) : '');
             }
 
             // Start transaction for multiple copies
             $pdo->beginTransaction();
 
-            for ($c = 1; $c <= $num_copies; $c++) {
-                if (empty($accession_number)) {
-                    $current_accession = 'B' . str_pad($next_base_num + $c - 1, 3, '0', STR_PAD_LEFT);
+            // Determine the starting accession number
+            $base_accession = $accession_number;
+            if (empty($base_accession)) {
+                $stmt = $pdo->query("SELECT accession_number FROM books ORDER BY book_id DESC LIMIT 1");
+                $last = $stmt->fetch();
+                
+                if (!$last) {
+                    $base_accession = '001';
                 } else {
-                    // If user provides a base but wants multiple copies, append index
-                    $current_accession = ($num_copies > 1) ? $accession_number . "-" . $c : $accession_number;
+                    $last_acc = $last['accession_number'];
+                    // Loop to find next available
+                    $offset = 1;
+                    while (true) {
+                        $candidate = incrementString($last_acc, $offset);
+                        $check = $pdo->prepare("SELECT COUNT(*) FROM books WHERE accession_number = ?");
+                        $check->execute([$candidate]);
+                        if ($check->fetchColumn() == 0) {
+                            $base_accession = $candidate;
+                            break;
+                        }
+                        $offset++;
+                        if ($offset > 100) break; // Safety
+                    }
                 }
+            }
+
+            for ($c = 1; $c <= $num_copies; $c++) {
+                $current_accession = ($c === 1) ? $base_accession : incrementString($base_accession, $c - 1);
 
                 $current_copy_label = $copy_number;
                 if ($num_copies > 1) {
                     $current_copy_label = (empty($copy_number) ? "Copy" : $copy_number) . " " . $c;
+                }
+
+                // Check if accession number already exists
+                $check_stmt = $pdo->prepare("SELECT COUNT(*) FROM books WHERE accession_number = ?");
+                $check_stmt->execute([$current_accession]);
+                if ($check_stmt->fetchColumn() > 0) {
+                    throw new Exception("Accession number '$current_accession' already exists in the database.");
                 }
 
                 $stmt = $pdo->prepare("
@@ -95,15 +126,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         registration_date, accession_number, copy_number, classification_number, 
                         author, title, publisher, publication_year, pages, 
                         last_borrowed_date, last_returned_date, borrower_class, borrower_name,
-                        isbn, subject, category, shelf_location, total_copies, available_copies, price, status
-                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 1, ?, 'Active')
+                        subject, category, shelf_location, total_copies, available_copies, price, status
+                    ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 1, 1, ?, 'Active')
                 ");
 
                 $stmt->execute([
                     $registration_date, $current_accession, $current_copy_label, $classification_number,
                     $author, $title, $publisher, $publication_year ?: null, $pages ?: null,
                     $last_borrowed_date, $last_returned_date, $borrower_class, $borrower_name,
-                    $isbn ?: null, $subject, $category, $shelf_location,
+                    $subject, $category, $shelf_location,
                     $price ?: null
                 ]);
 
@@ -124,7 +155,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             // Clear POST for next entry
             $_POST = [];
             
-        } catch (PDOException $e) {
+        } catch (Exception $e) {
             $pdo->rollBack(); // Rollback transaction on error
             // Check if we need to add columns on the fly (Migration fallback)
             if (strpos($e->getMessage(), 'column') !== false) {
@@ -151,6 +182,22 @@ try {
 $kcse_subjects = ['Mathematics', 'English', 'Kiswahili', 'Biology', 'Chemistry', 'Physics', 'History', 'Geography', 'CRE', 'IRE', 'HRE', 'Business Studies', 'Agriculture', 'Home Science', 'Art & Design', 'Music', 'German', 'French', 'Arabic', 'Computer Studies', 'Literature'];
 $all_subjects = array_unique(array_merge($kcse_subjects, $existing_subjects));
 sort($all_subjects);
+
+// Helper for next recommended accession number
+function getNextAccessionPlaceholder($pdo) {
+    $stmt = $pdo->query("SELECT accession_number FROM books ORDER BY book_id DESC LIMIT 1");
+    $last = $stmt->fetch();
+    if (!$last) return '001';
+    
+    $last_acc = $last['accession_number'];
+    if (preg_match('/^(.*?)(\d+)$/', $last_acc, $matches)) {
+        $prefix = $matches[1];
+        $num = $matches[2];
+        return $prefix . str_pad(intval($num) + 1, strlen($num), '0', STR_PAD_LEFT);
+    }
+    return $last_acc . '-1';
+}
+$next_acc_suggested = getNextAccessionPlaceholder($pdo);
 ?>
 
 <div class="page-container">
@@ -184,7 +231,7 @@ sort($all_subjects);
                         </div>
                         <div class="form-group">
                             <label class="form-label">Accession Number</label>
-                            <input type="text" name="accession_number" class="form-input" placeholder="B001 (Auto if empty)" value="<?php echo htmlspecialchars($_POST['accession_number'] ?? ''); ?>">
+                            <input type="text" name="accession_number" class="form-input" placeholder="e.g. <?php echo $next_acc_suggested; ?> (Auto if empty)" value="<?php echo htmlspecialchars($_POST['accession_number'] ?? ''); ?>">
                         </div>
                         <div class="form-group">
                             <label class="form-label">Number of Copies</label>
@@ -219,18 +266,36 @@ sort($all_subjects);
                             <input type="text" name="author" class="form-input" value="<?php echo htmlspecialchars($_POST['author'] ?? ''); ?>" required>
                         </div>
                         <div class="form-group">
-                            <label class="form-label">Publisher</label>
-                            <input type="text" name="publisher" class="form-input" value="<?php echo htmlspecialchars($_POST['publisher'] ?? ''); ?>">
+                            <label class="form-label required">Subject</label>
+                            <select name="subject" class="form-input" required>
+                                <option value="">Select Subject</option>
+                                <?php foreach ($all_subjects as $subj): ?>
+                                    <option value="<?php echo htmlspecialchars($subj); ?>" 
+                                            <?php echo (($_POST['subject'] ?? '') === $subj) ? 'selected' : ''; ?>>
+                                        <?php echo htmlspecialchars($subj); ?>
+                                    </option>
+                                <?php endforeach; ?>
+                            </select>
                         </div>
                     </div>
                     <div class="form-row">
                         <div class="form-group">
+                            <label class="form-label">Publisher</label>
+                            <input type="text" name="publisher" class="form-input" value="<?php echo htmlspecialchars($_POST['publisher'] ?? ''); ?>">
+                        </div>
+                        <div class="form-group">
                             <label class="form-label">Publication Year</label>
                             <input type="number" name="publication_year" class="form-input" value="<?php echo htmlspecialchars($_POST['publication_year'] ?? ''); ?>">
                         </div>
+                    </div>
+                    <div class="form-row">
                         <div class="form-group">
                             <label class="form-label">Pagination (Pages)</label>
                             <input type="number" name="pages" class="form-input" value="<?php echo htmlspecialchars($_POST['pages'] ?? ''); ?>">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Price (KSh)</label>
+                            <input type="number" name="price" class="form-input" step="0.01" min="0" placeholder="0.00" value="<?php echo htmlspecialchars($_POST['price'] ?? ''); ?>">
                         </div>
                     </div>
                 </div>
