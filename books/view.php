@@ -67,6 +67,9 @@ include '../includes/header.php';
     <div class="page-header">
         <h1><i class="fas fa-book"></i> Book Details</h1>
         <div class="page-actions">
+            <button onclick="window.print()" class="btn btn-success">
+                <i class="fas fa-print"></i> Print
+            </button>
             <a href="edit.php?id=<?php echo $book_id; ?>" class="btn btn-primary">
                 <i class="fas fa-edit"></i> Edit Book
             </a>
@@ -75,6 +78,15 @@ include '../includes/header.php';
             </a>
         </div>
     </div>
+
+    <div id="book-details-content">
+        <div class="report-print-header" style="display: none;">
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <h1 style="margin: 0;">Drumvale Secondary School</h1>
+                <h2 style="margin: 0.5rem 0; color: #64748b;">Book Details Record</h2>
+                <p style="margin: 0; color: #94a3b8;">Generated on: <?php echo date('F d, Y H:i'); ?></p>
+            </div>
+        </div>
 
     <!-- Price Summary Box -->
     <?php if ($book['price']): ?>
@@ -310,6 +322,7 @@ include '../includes/header.php';
             </table>
         </div>
     </div>
+    </div>
 </div>
 
 <style>
@@ -447,6 +460,29 @@ include '../includes/header.php';
     font-size: 1.1rem;
     border-bottom: 2px solid #e5e7eb;
     padding-bottom: 0.5rem;
+}
+.report-print-header {
+    display: none !important;
+}
+
+@media print {
+    .report-print-header {
+        display: block !important;
+    }
+    .page-header, .page-actions, .main-nav, .main-footer, .btn, .page-hero {
+        display: none !important;
+    }
+    .page-container {
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    .details-card, .section-card, .price-summary-card {
+        box-shadow: none !important;
+        border: 1px solid #e2e8f0 !important;
+        break-inside: avoid;
+    }
 }
 </style>
 

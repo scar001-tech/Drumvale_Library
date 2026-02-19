@@ -53,14 +53,17 @@ try {
     $monthly_stmt->execute([$sixMonthsAgo]);
     $monthly_trends = $monthly_stmt->fetchAll();
     
-    // Recent Transactions
+    // Recent Transactions - Allow full view for printing
+    $view_all = isset($_GET['view']) && $_GET['view'] === 'all';
+    $limit_sql = $view_all ? "" : "LIMIT 15";
+    
     $recent = $pdo->query("
         SELECT t.*, b.title, m.full_name
         FROM transactions t
         JOIN books b ON t.book_id = b.book_id
         JOIN members m ON t.member_id = m.member_id
         ORDER BY t.created_at DESC
-        LIMIT 15
+        $limit_sql
     ")->fetchAll();
     
 } catch (PDOException $e) {
@@ -73,13 +76,31 @@ try {
         <h1><i class="fas fa-exchange-alt"></i> Transaction Reports</h1>
         <div class="page-actions">
             <a href="index.php" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Back to Reports
+                <i class="fas fa-arrow-left"></i> Back
             </a>
-            <button onclick="window.print()" class="btn btn-primary">
-                <i class="fas fa-print"></i> Print Report
+            <?php if (!$view_all): ?>
+                <a href="?view=all" class="btn btn-info">
+                    <i class="fas fa-list"></i> View All Data
+                </a>
+            <?php else: ?>
+                <a href="transactions.php" class="btn btn-info">
+                    <i class="fas fa-compress-alt"></i> Show Less
+                </a>
+            <?php endif; ?>
+            <button onclick="window.print()" class="btn btn-success">
+                <i class="fas fa-print"></i> Print
             </button>
         </div>
     </div>
+
+    <div id="transactions-report">
+        <div class="report-print-header" style="display: none;">
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <h1 style="margin: 0;">Drumvale Secondary School</h1>
+                <h2 style="margin: 0.5rem 0; color: #64748b;">Library Transaction Report</h2>
+                <p style="margin: 0; color: #94a3b8;">Generated on: <?php echo date('F d, Y H:i'); ?></p>
+            </div>
+        </div>
 
     <?php if (isset($error)): ?>
         <div class="alert alert-error"><?php echo $error; ?></div>
@@ -146,54 +167,37 @@ try {
             </table>
         </div>
     </div>
+    </div>
 </div>
 
 <style>
-.stats-grid {
-    display: grid;
-    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-    gap: 1.5rem;
-}
-
-.stat-card {
-    background: white;
-    padding: 1.5rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-    text-align: center;
-}
-
-.stat-card h3 {
-    font-size: 2rem;
-    margin: 0;
-    color: #1e293b;
-}
-
-.stat-card p {
-    color: #64748b;
-    margin: 0.5rem 0 0 0;
-    font-weight: 500;
-}
-
-.report-section {
-    background: white;
-    padding: 1.5rem;
-    border-radius: 8px;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-}
-
-.report-section h3 {
-    margin-top: 0;
-    margin-bottom: 1.5rem;
-    color: #1f2937;
+.report-print-header {
+    display: none !important;
 }
 
 @media print {
-    .page-header .page-actions,
-    .main-nav {
+    .report-print-header {
+        display: block !important;
+    }
+    .page-header, .btn, .main-nav, .main-footer {
         display: none !important;
+    }
+    .page-container {
+        padding: 0;
+        margin: 0;
+        width: 100%;
+    }
+    .report-section {
+        box-shadow: none !important;
+        border: 1px solid #e2e8f0 !important;
     }
 }
 </style>
+
+<?php 
+if (isset($_GET['print'])) {
+    $inline_js = "window.onload = function() { window.print(); }";
+}
+?>
 
 <?php include '../includes/footer.php'; ?>

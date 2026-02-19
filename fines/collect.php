@@ -67,11 +67,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <div class="page-header">
         <h1><i class="fas fa-money-bill"></i> Collect Fine Payment</h1>
         <div class="page-actions">
+            <button onclick="window.print()" class="btn btn-success">
+                <i class="fas fa-print"></i> Print
+            </button>
             <a href="index.php" class="btn btn-secondary">
                 <i class="fas fa-arrow-left"></i> Back to Fines
             </a>
         </div>
     </div>
+
+    <div id="fine-collect-content">
+        <div class="report-print-header" style="display: none;">
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <h1 style="margin: 0;">Drumvale Secondary School</h1>
+                <h2 style="margin: 0.5rem 0; color: #64748b;">Fine Collection Receipt</h2>
+                <p style="margin: 0; color: #94a3b8;">Generated on: <?php echo date('F d, Y H:i'); ?></p>
+            </div>
+        </div>
 
     <div class="details-grid">
         <div class="details-card">
@@ -128,6 +140,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
         </div>
     </div>
+    </div>
 
     <div class="form-container">
         <form method="POST">
@@ -153,5 +166,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
     </div>
 </div>
+
+<style>
+.report-print-header {
+    display: none !important;
+}
+
+@media print {
+    .report-print-header {
+        display: block !important;
+    }
+    .page-header, .page-actions, .main-nav, .main-footer, .btn, .page-hero, .form-container {
+        display: none !important;
+    }
+    .page-container {
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    .details-card {
+        box-shadow: none !important;
+        border: 1px solid #e2e8f0 !important;
+        break-inside: avoid;
+    }
+}
+</style>
 
 <?php include '../includes/footer.php'; ?>

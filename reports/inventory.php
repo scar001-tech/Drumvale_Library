@@ -24,12 +24,15 @@ try {
         GROUP BY status, condition_status
     ")->fetchAll();
 
-    // Books with low availability
+    // Books with low availability - Allow full view for printing
+    $view_all = isset($_GET['view']) && $_GET['view'] === 'all';
+    $limit_sql = $view_all ? "" : "LIMIT 20";
+    
     $low_stock = $pdo->query("
         SELECT title, accession_number, total_copies, available_copies
         FROM books
         WHERE available_copies = 0 AND total_copies > 0 AND status = 'Active'
-        LIMIT 20
+        $limit_sql
     ")->fetchAll();
     
     // Total Inventory Value
@@ -45,13 +48,31 @@ try {
         <h1><i class="fas fa-warehouse"></i> Inventory Report</h1>
         <div class="page-actions">
             <a href="index.php" class="btn btn-secondary">
-                <i class="fas fa-arrow-left"></i> Back to Reports
+                <i class="fas fa-arrow-left"></i> Back
             </a>
-            <button onclick="window.print()" class="btn btn-primary">
-                <i class="fas fa-print"></i> Print Report
+            <?php if (!$view_all): ?>
+                <a href="?view=all" class="btn btn-info">
+                    <i class="fas fa-list"></i> View All Data
+                </a>
+            <?php else: ?>
+                <a href="inventory.php" class="btn btn-info">
+                    <i class="fas fa-compress-alt"></i> Show Less
+                </a>
+            <?php endif; ?>
+            <button onclick="window.print()" class="btn btn-success">
+                <i class="fas fa-print"></i> Print
             </button>
         </div>
     </div>
+
+    <div id="inventory-report">
+        <div class="report-print-header" style="display: none;">
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <h1 style="margin: 0;">Drumvale Secondary School</h1>
+                <h2 style="margin: 0.5rem 0; color: #64748b;">Library Inventory Report</h2>
+                <p style="margin: 0; color: #94a3b8;">Generated on: <?php echo date('F d, Y H:i'); ?></p>
+            </div>
+        </div>
 
     <?php if (isset($error)): ?>
         <div class="alert alert-error"><?php echo $error; ?></div>
@@ -129,7 +150,39 @@ try {
     </div>
 </div>
 
+    </div>
+</div>
+
 <style>
+.report-print-header {
+    display: none !important;
+}
+
+@media print {
+    .report-print-header {
+        display: block !important;
+    }
+    .page-header, .page-actions, .main-nav, .main-footer, .btn, .alert {
+        display: none !important;
+    }
+    .page-container {
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    .report-section {
+        margin-bottom: 20px;
+        box-shadow: none !important;
+        border: 1px solid #e2e8f0 !important;
+        break-inside: avoid;
+    }
+    .stat-card {
+        box-shadow: none !important;
+        border: 1px solid #e2e8f0 !important;
+    }
+}
+
 .stats-grid {
     display: grid;
     grid-template-columns: 1fr;
@@ -164,13 +217,6 @@ try {
     color: #1f2937;
     border-bottom: 2px solid #f3f4f6;
     padding-bottom: 0.75rem;
-}
-
-@media print {
-    .page-header .page-actions,
-    .main-nav {
-        display: none !important;
-    }
 }
 </style>
 

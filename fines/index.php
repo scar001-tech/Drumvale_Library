@@ -15,7 +15,8 @@ include '../includes/db_connect.php';
 $search = $_GET['search'] ?? '';
 $status = $_GET['status'] ?? '';
 $page = max(1, intval($_GET['page'] ?? 1));
-$per_page = 20;
+$view_all = isset($_GET['view']) && $_GET['view'] === 'all';
+$per_page = $view_all ? 10000 : 20;
 $offset = ($page - 1) * $per_page;
 
 $where_conditions = ["1=1"];
@@ -82,7 +83,14 @@ try {
 
 <div class="page-container">
     <div class="page-header">
-        <h1><i class="fas fa-money-bill-wave"></i> Fines Management</h1>
+        <div class="page-actions">
+            <button onclick="window.print()" class="btn btn-success">
+                <i class="fas fa-print"></i> Print
+            </button>
+            <a href="../reports/fines.php" class="btn btn-secondary">
+                <i class="fas fa-chart-line"></i> Reports
+            </a>
+        </div>
     </div>
 
     <!-- Statistics Cards -->
@@ -146,11 +154,32 @@ try {
                 <i class="fas fa-search"></i> Search
             </button>
             
-            <a href="index.php" class="btn btn-secondary">
-                <i class="fas fa-times"></i> Clear
-            </a>
+            <?php if ($view_all || !empty($search) || !empty($status)): ?>
+                <a href="index.php" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Clear
+                </a>
+            <?php endif; ?>
+
+            <?php if (!$view_all): ?>
+                <a href="?view=all&search=<?php echo urlencode($search); ?>&status=<?php echo urlencode($status); ?>" class="btn btn-info">
+                    <i class="fas fa-list"></i> View All For Printing
+                </a>
+            <?php else: ?>
+                <a href="index.php?search=<?php echo urlencode($search); ?>&status=<?php echo urlencode($status); ?>" class="btn btn-info">
+                    <i class="fas fa-compress-alt"></i> Show Less
+                </a>
+            <?php endif; ?>
         </form>
     </div>
+
+    <div id="printable-fines">
+        <div class="report-print-header" style="display: none;">
+            <div style="text-align: center; margin-bottom: 2rem;">
+                <h1 style="margin: 0;">Drumvale Secondary School</h1>
+                <h2 style="margin: 0.5rem 0; color: #64748b;">Library Fines List</h2>
+                <p style="margin: 0; color: #94a3b8;">Generated on: <?php echo date('F d, Y H:i'); ?></p>
+            </div>
+        </div>
 
     <?php if (isset($error)): ?>
         <div class="alert alert-error"><?php echo $error; ?></div>
@@ -169,7 +198,7 @@ try {
                     <th>Amount Paid</th>
                     <th>Balance</th>
                     <th>Status</th>
-                    <th>Actions</th>
+                    <th class="no-print">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -206,7 +235,7 @@ try {
                                     <?php echo $fine['payment_status']; ?>
                                 </span>
                             </td>
-                            <td class="actions">
+                            <td class="actions no-print">
                                 <?php if ($fine['payment_status'] !== 'Paid' && $fine['payment_status'] !== 'Waived'): ?>
                                 <a href="collect.php?id=<?php echo $fine['fine_id']; ?>" class="btn btn-sm btn-success" title="Collect Payment">
                                     <i class="fas fa-money-bill"></i>
@@ -222,8 +251,9 @@ try {
             </tbody>
         </table>
     </div>
+    </div>
 
-    <?php if ($total_pages > 1): ?>
+    <?php if ($total_fines > 0 && $total_pages > 1 && !$view_all): ?>
         <div class="pagination">
             <?php if ($page > 1): ?>
                 <a href="?page=<?php echo $page-1; ?>&search=<?php echo urlencode($search); ?>&status=<?php echo urlencode($status); ?>" class="btn btn-secondary">
@@ -244,5 +274,39 @@ try {
         </div>
     <?php endif; ?>
 </div>
+
+<style>
+.report-print-header {
+    display: none !important;
+}
+
+@media print {
+    .report-print-header {
+        display: block !important;
+    }
+    .page-header, .page-actions, .filters-section, .pagination, .main-nav, .main-footer, .btn, .page-hero, .no-print {
+        display: none !important;
+    }
+    .page-container {
+        padding: 0 !important;
+        margin: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+    .table-container {
+        box-shadow: none !important;
+        border: 1px solid #e2e8f0 !important;
+    }
+    .stats-grid {
+        display: grid !important;
+        grid-template-columns: repeat(4, 1fr) !important;
+        gap: 10px !important;
+    }
+    .stat-card {
+        box-shadow: none !important;
+        border: 1px solid #e2e8f0 !important;
+    }
+}
+</style>
 
 <?php include '../includes/footer.php'; ?>

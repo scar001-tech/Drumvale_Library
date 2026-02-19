@@ -27,6 +27,7 @@ $basePath = getBasePath();
     <!-- Main CSS -->
     <link rel="stylesheet" href="<?php echo $basePath; ?>assets/css/main.css">
     
+    
     <!-- Page-specific CSS -->
     <?php if (isset($additional_css)): ?>
         <?php foreach ($additional_css as $css): ?>

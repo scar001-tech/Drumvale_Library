@@ -107,17 +107,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+// Handle Search
+$search = $_GET['search'] ?? '';
+$where_clause = "t.status = 'Issued'";
+$params = [];
+
+if (!empty($search)) {
+    $where_clause .= " AND (b.accession_number LIKE ? OR b.title LIKE ? OR b.author LIKE ? OR m.full_name LIKE ? OR m.unique_identifier LIKE ?)";
+    $search_param = "%$search%";
+    $params = [$search_param, $search_param, $search_param, $search_param, $search_param];
+}
+
 // Get issued books (for display)
-$issued_stmt = $pdo->query("
+$issued_stmt = $pdo->prepare("
     SELECT t.*, b.accession_number, b.title, b.author, b.price, m.unique_identifier, m.full_name, m.member_type,
            DATEDIFF(CURDATE(), t.due_date) as days_overdue
     FROM transactions t
     JOIN books b ON t.book_id = b.book_id
     JOIN members m ON t.member_id = m.member_id
-    WHERE t.status = 'Issued'
+    WHERE $where_clause
     ORDER BY t.due_date ASC
 ");
+$issued_stmt->execute($params);
 $issued_books = $issued_stmt->fetchAll();
+
+// Get total count for status info
+$total_stmt = $pdo->query("SELECT COUNT(*) FROM transactions WHERE status = 'Issued'");
+$total_issued = $total_stmt->fetchColumn();
 
 // Now include header after all redirect logic (HTML output starts here)
 $page_title = "Return Book";
@@ -136,17 +152,33 @@ include '../includes/header.php';
 
     <!-- Search Box -->
     <div class="search-card">
-        <div class="search-wrapper">
-            <i class="fas fa-search search-icon"></i>
-            <input type="text" id="returnBookSearch" class="search-input" 
-                   placeholder="Search by accession number, title, author, or borrower..." 
-                   autocomplete="off">
-            <button type="button" id="clearSearch" class="search-clear-btn" title="Clear search" style="display:none;">
-                <i class="fas fa-times"></i>
+        <form method="GET" class="search-container">
+            <div class="search-wrapper">
+                <i class="fas fa-search search-icon"></i>
+                <input type="text" name="search" id="returnBookSearch" class="search-input" 
+                       placeholder="Search by accession number, title, author, or borrower..." 
+                       value="<?php echo htmlspecialchars($search); ?>"
+                       autocomplete="off">
+                <?php if (!empty($search)): ?>
+                    <a href="return.php" class="search-clear-btn" title="Clear search" style="display:flex; text-decoration: none;">
+                        <i class="fas fa-times"></i>
+                    </a>
+                <?php else: ?>
+                    <button type="button" id="clearSearch" class="search-clear-btn" title="Clear search" style="display:none;">
+                        <i class="fas fa-times"></i>
+                    </button>
+                <?php endif; ?>
+            </div>
+            <button type="submit" class="btn btn-primary search-btn">
+                <i class="fas fa-search"></i> Search
             </button>
-        </div>
+        </form>
         <div class="search-info">
-            <span id="searchResultCount"><?php echo count($issued_books); ?></span> of <?php echo count($issued_books); ?> issued books shown
+            <?php if (!empty($search)): ?>
+                Found <span><?php echo count($issued_books); ?></span> results for "<?php echo htmlspecialchars($search); ?>" out of <span><?php echo $total_issued; ?></span> issued books.
+            <?php else: ?>
+                Showing all <span><?php echo count($issued_books); ?></span> issued books.
+            <?php endif; ?>
         </div>
     </div>
 
@@ -249,10 +281,17 @@ include '../includes/header.php';
     border: 1px solid #e2e8f0;
 }
 
+.search-container {
+    display: flex;
+    gap: 12px;
+    align-items: center;
+}
+
 .search-wrapper {
     position: relative;
     display: flex;
     align-items: center;
+    flex: 1;
 }
 
 .search-icon {
@@ -274,6 +313,16 @@ include '../includes/header.php';
     background: #f8fafc;
     transition: all 0.3s ease;
     outline: none;
+}
+
+.search-btn {
+    height: 48px;
+    padding: 0 24px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 600;
 }
 
 .search-input:focus {
@@ -347,53 +396,13 @@ include '../includes/header.php';
 document.addEventListener('DOMContentLoaded', function() {
     const searchInput = document.getElementById('returnBookSearch');
     const clearBtn = document.getElementById('clearSearch');
-    const resultCount = document.getElementById('searchResultCount');
-    const noResultsRow = document.getElementById('noResultsRow');
-    const bookRows = document.querySelectorAll('.book-row');
-    const totalBooks = bookRows.length;
 
-    if (!searchInput) return;
-
-    searchInput.addEventListener('input', function() {
-        const query = this.value.trim().toLowerCase();
-        
-        // Toggle clear button
-        clearBtn.style.display = query.length > 0 ? 'flex' : 'none';
-
-        let visibleCount = 0;
-
-        bookRows.forEach(function(row) {
-            const accession = row.getAttribute('data-accession') || '';
-            const title = row.getAttribute('data-title') || '';
-            const author = row.getAttribute('data-author') || '';
-            const borrower = row.getAttribute('data-borrower') || '';
-            const identifier = row.getAttribute('data-identifier') || '';
-
-            const matches = query === '' ||
-                accession.includes(query) ||
-                title.includes(query) ||
-                author.includes(query) ||
-                borrower.includes(query) ||
-                identifier.includes(query);
-
-            row.style.display = matches ? '' : 'none';
-            if (matches) visibleCount++;
+    if (clearBtn && searchInput) {
+        clearBtn.addEventListener('click', function() {
+            searchInput.value = '';
+            window.location.href = 'return.php';
         });
-
-        // Update count
-        resultCount.textContent = visibleCount;
-
-        // Show/hide no results message
-        if (noResultsRow) {
-            noResultsRow.style.display = (visibleCount === 0 && totalBooks > 0) ? '' : 'none';
-        }
-    });
-
-    clearBtn.addEventListener('click', function() {
-        searchInput.value = '';
-        searchInput.dispatchEvent(new Event('input'));
-        searchInput.focus();
-    });
+    }
 
     // Allow keyboard shortcut: Ctrl+F or / to focus search
     document.addEventListener('keydown', function(e) {
@@ -401,8 +410,10 @@ document.addEventListener('DOMContentLoaded', function() {
             (e.ctrlKey && e.key === 'f' && !e.metaKey)) {
             // Only prevent default for Ctrl+F to avoid browser search
             if (e.ctrlKey) e.preventDefault();
-            searchInput.focus();
-            searchInput.select();
+            if (searchInput) {
+                searchInput.focus();
+                searchInput.select();
+            }
         }
     });
 });

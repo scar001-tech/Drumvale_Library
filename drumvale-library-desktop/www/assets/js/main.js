@@ -4,7 +4,7 @@
  */
 
 // Initialize when DOM is loaded
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
     initializeApp();
 });
 
@@ -14,16 +14,16 @@ document.addEventListener('DOMContentLoaded', function() {
 function initializeApp() {
     // Auto-hide alerts after 5 seconds
     autoHideAlerts();
-    
+
     // Initialize tooltips
     initializeTooltips();
-    
+
     // Initialize form validation
     initializeFormValidation();
-    
+
     // Initialize search functionality
     initializeSearch();
-    
+
     // Initialize mobile menu
     initializeMobileMenu();
 }
@@ -61,24 +61,24 @@ function initializeTooltips() {
 function showTooltip(event) {
     const element = event.target;
     const title = element.getAttribute('title');
-    
+
     if (!title) return;
-    
+
     // Remove title to prevent browser tooltip
     element.setAttribute('data-original-title', title);
     element.removeAttribute('title');
-    
+
     // Create tooltip element
     const tooltip = document.createElement('div');
     tooltip.className = 'custom-tooltip';
     tooltip.textContent = title;
     document.body.appendChild(tooltip);
-    
+
     // Position tooltip
     const rect = element.getBoundingClientRect();
     tooltip.style.left = rect.left + (rect.width / 2) - (tooltip.offsetWidth / 2) + 'px';
     tooltip.style.top = rect.top - tooltip.offsetHeight - 8 + 'px';
-    
+
     // Show tooltip
     setTimeout(() => {
         tooltip.classList.add('show');
@@ -91,12 +91,12 @@ function showTooltip(event) {
 function hideTooltip(event) {
     const element = event.target;
     const originalTitle = element.getAttribute('data-original-title');
-    
+
     if (originalTitle) {
         element.setAttribute('title', originalTitle);
         element.removeAttribute('data-original-title');
     }
-    
+
     const tooltip = document.querySelector('.custom-tooltip');
     if (tooltip) {
         tooltip.remove();
@@ -120,7 +120,7 @@ function validateForm(event) {
     const form = event.target;
     const requiredFields = form.querySelectorAll('[required]');
     let isValid = true;
-    
+
     requiredFields.forEach(field => {
         if (!field.value.trim()) {
             showFieldError(field, 'This field is required');
@@ -129,7 +129,7 @@ function validateForm(event) {
             clearFieldError(field);
         }
     });
-    
+
     if (!isValid) {
         event.preventDefault();
         showAlert('Please fill in all required fields', 'error');
@@ -141,7 +141,7 @@ function validateForm(event) {
  */
 function showFieldError(field, message) {
     clearFieldError(field);
-    
+
     field.classList.add('error');
     const errorDiv = document.createElement('div');
     errorDiv.className = 'field-error';
@@ -177,20 +177,20 @@ function performSearch(event) {
     const input = event.target;
     const searchTerm = input.value.trim();
     const targetTable = input.getAttribute('data-target');
-    
+
     if (!targetTable) return;
-    
+
     const table = document.querySelector(targetTable);
     if (!table) return;
-    
+
     const rows = table.querySelectorAll('tbody tr');
-    
+
     rows.forEach(row => {
         const text = row.textContent.toLowerCase();
         const matches = searchTerm === '' || text.includes(searchTerm.toLowerCase());
         row.style.display = matches ? '' : 'none';
     });
-    
+
     // Update results count
     const visibleRows = table.querySelectorAll('tbody tr:not([style*="display: none"])');
     updateSearchResults(visibleRows.length, rows.length);
@@ -212,7 +212,7 @@ function updateSearchResults(visible, total) {
 function initializeMobileMenu() {
     const mobileToggle = document.querySelector('.mobile-menu-toggle');
     const navMenu = document.querySelector('.nav-menu');
-    
+
     if (mobileToggle && navMenu) {
         mobileToggle.addEventListener('click', () => {
             navMenu.classList.toggle('active');
@@ -227,13 +227,13 @@ function initializeMobileMenu() {
 function showAlert(message, type = 'info') {
     const alertDiv = document.createElement('div');
     alertDiv.className = `alert alert-${type}`;
-    
+
     const icon = getAlertIcon(type);
     alertDiv.innerHTML = `<i class="${icon}"></i> ${message}`;
-    
+
     const mainContent = document.querySelector('.main-content');
     mainContent.insertBefore(alertDiv, mainContent.firstChild);
-    
+
     // Auto-hide after 5 seconds
     setTimeout(() => {
         alertDiv.style.opacity = '0';
@@ -313,16 +313,17 @@ function printPage() {
     window.print();
 }
 
+
 /**
  * Export table to CSV
  */
 function exportTableToCSV(tableId, filename = 'export.csv') {
     const table = document.getElementById(tableId);
     if (!table) return;
-    
+
     const rows = table.querySelectorAll('tr');
     const csvContent = [];
-    
+
     rows.forEach(row => {
         const cols = row.querySelectorAll('td, th');
         const rowData = Array.from(cols).map(col => {
@@ -330,16 +331,16 @@ function exportTableToCSV(tableId, filename = 'export.csv') {
         });
         csvContent.push(rowData.join(','));
     });
-    
+
     const csvString = csvContent.join('\n');
     const blob = new Blob([csvString], { type: 'text/csv' });
     const url = window.URL.createObjectURL(blob);
-    
+
     const a = document.createElement('a');
     a.href = url;
     a.download = filename;
     a.click();
-    
+
     window.URL.revokeObjectURL(url);
 }
 
@@ -393,7 +394,7 @@ function daysBetween(date1, date2) {
     const oneDay = 24 * 60 * 60 * 1000;
     const firstDate = new Date(date1);
     const secondDate = new Date(date2);
-    
+
     return Math.round(Math.abs((firstDate - secondDate) / oneDay));
 }
 
@@ -410,13 +411,13 @@ function formatDate(dateString) {
 }
 
 // Global error handler
-window.addEventListener('error', function(event) {
+window.addEventListener('error', function (event) {
     console.error('JavaScript Error:', event.error);
     // Don't show error to user in production
 });
 
 // Global unhandled promise rejection handler
-window.addEventListener('unhandledrejection', function(event) {
+window.addEventListener('unhandledrejection', function (event) {
     console.error('Unhandled Promise Rejection:', event.reason);
     event.preventDefault();
 });
